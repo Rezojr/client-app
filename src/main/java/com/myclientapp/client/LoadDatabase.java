@@ -14,8 +14,8 @@ public class LoadDatabase {
     @Bean
     CommandLineRunner initDatabase(ClientRepository clientRepository) {
         return args -> {
-            clientRepository.save(new Client("Bilbo", "Baggins", 21, "Test@gmail.com", "123123213", 1));
-            clientRepository.save(new Client("Frodo", "Baggins", 31, "lost@gmail.com", "555666777", 1));
+            clientRepository.save(new Client(1L, "Bilbo", "Baggins", 21, "Test@gmail.com", "123123213", 1));
+            clientRepository.save(new Client(2L, "Frodo", "Baggins", 31, "lost@gmail.com", "555666777", 1));
         };
     }
 

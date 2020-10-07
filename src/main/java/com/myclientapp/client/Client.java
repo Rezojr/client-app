@@ -34,12 +34,4 @@ public class Client extends Auditable<String> {
     private String phoneNumber;
     private int accountNumber;
 
-    public Client(String firstName, String lastName, int age, String email, String phoneNumber, int accountNumber) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.age = age;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.accountNumber = accountNumber;
-    }
 }

@@ -24,12 +24,12 @@ public class ClientService {
         this.assembler = assembler;
     }
 
-    Client one(Long id) {
+    public Client one(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ClientNotFoundException(id));
     }
 
-    List<EntityModel<Client>> all() {
+    public List<EntityModel<Client>> all() {
 
         return repository.findAll().stream() //
                 .map(assembler::toModel) //

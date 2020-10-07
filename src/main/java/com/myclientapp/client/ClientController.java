@@ -28,19 +28,19 @@ public class ClientController {
     }
 
     @GetMapping("/clients/{id}")
-    EntityModel<Client> one(@PathVariable Long id) {
+    public EntityModel<Client> one(@PathVariable Long id) {
         Client client = service.one(id);
 
         return assembler.toModel(client);
     }
 
     @GetMapping("/clientsdto/{id}")
-    ClientDto oneDto(@PathVariable Long id) {
+    public ClientDto oneDto(@PathVariable Long id) {
         return toDto(service.one(id));
     }
 
     @GetMapping("/clients")
-    CollectionModel<EntityModel<Client>> all() {
+    public CollectionModel<EntityModel<Client>> all() {
 
         List<EntityModel<Client>> employees = service.all();
 
@@ -48,18 +48,18 @@ public class ClientController {
     }
 
     @PostMapping("/clients")
-    ResponseEntity<?> newClient(@RequestBody Client newClient) {
+    public ResponseEntity<?> newClient(@RequestBody Client newClient) {
         return service.newClient(newClient);
     }
 
     @PutMapping("/clients/{id}")
-    ResponseEntity<?> replaceClient(@RequestBody Client newClient, @PathVariable Long id) {
+    public ResponseEntity<?> replaceClient(@RequestBody Client newClient, @PathVariable Long id) {
 
         return service.replaceClient(newClient, id);
     }
 
     @DeleteMapping("/clients/{id}")
-    ResponseEntity<?> deleteClient(@PathVariable Long id) {
+    public ResponseEntity<?> deleteClient(@PathVariable Long id) {
 
         return service.deleteClient(id);
     }
