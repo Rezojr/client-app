@@ -1,44 +1,36 @@
 package com.myclientapp;
 
-import com.myclientapp.client.*;
-import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.modelmapper.ModelMapper;
-import org.skyscreamer.jsonassert.JSONAssert;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.event.annotation.BeforeTestClass;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.RequestBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+        import com.myclientapp.client.*;
+        import org.json.JSONException;
+        import org.json.JSONObject;
+        import org.junit.Before;
+        import org.junit.Test;
+        import org.junit.jupiter.api.BeforeEach;
+        import org.junit.runner.RunWith;
+        import org.mockito.MockitoAnnotations;
+        import org.modelmapper.ModelMapper;
+        import org.skyscreamer.jsonassert.JSONAssert;
+        import org.springframework.beans.factory.annotation.Autowired;
+        import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+        import org.springframework.boot.test.mock.mockito.MockBean;
+        import org.springframework.http.MediaType;
+        import org.springframework.security.test.context.support.WithMockUser;
+        import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+        import org.springframework.test.web.servlet.MockMvc;
+        import org.springframework.test.web.servlet.MvcResult;
+        import org.springframework.test.web.servlet.RequestBuilder;
+        import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+        import java.util.LinkedList;
+        import java.util.List;
 
-@RunWith(SpringRunner.class)
+        import static org.junit.Assert.*;
+        import static org.mockito.ArgumentMatchers.anyLong;
+        import static org.mockito.Mockito.*;
+
+@RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest(value = ClientController.class)
+@WithMockUser
 public class ClientTest {
 
     @Autowired
@@ -56,13 +48,21 @@ public class ClientTest {
     @MockBean
     ClientRepository clientRepository;
 
-    Client mockClient = new Client(1L, "Dark", "Vader", 66, "Darkside@gmail.com", "333111222", 55);
+
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+        clientRepository.save(new Client(1L, "Dark", "Vader", 66, "Darkside@gmail.com", "333111222", 55));
+        clientRepository.save(new Client(2L, "John", "Ladder", 66, "test@gmail.com", "123456789", 1));
+
+    }
+
 
     @Test
     public void testGetOneClient() throws Exception {
-        Mockito.when(clientService.one(Mockito.anyLong())).thenReturn(mockClient);
-
-        System.out.println(clientService.one(1L));
+        Client mockClient = new Client(1L, "Dark", "Vader", 66, "Darkside@gmail.com", "333111222", 55);
+        when(clientService.one(anyLong())).thenReturn(mockClient);
+        System.out.println(mockClient);
 
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .get("/clients/1")
@@ -70,10 +70,36 @@ public class ClientTest {
 
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
 
-        System.out.println(result.getResponse());
-        String expected = "{id:1,firstName:Dark,lastName:Vader,age:66,email:Darkside@gmail.com,phoneNumber:333111222,accountNumber:55}";
+        System.out.println(result.getResponse().getContentAsString());
+        String expected = "{\"id\":1,\"firstName\":\"Dark\",\"lastName\":\"Vader\",\"age\":66,\"email\":\"Darkside@gmail.com\",\"phoneNumber\":\"333111222\",\"accountNumber\":55}";
 
-        JSONAssert.assertEquals(expected, result.getResponse().getContentAsString(), false);
+        JSONObject json = new JSONObject(expected);
+
+        try{
+            System.out.println("Success: json = ");
+            System.out.println(json.toString(2));
+        } catch (JSONException ex) {
+            System.out.println("ERROR: " + ex);
+        }
+        JSONAssert.assertEquals(result.getResponse().getContentAsString(), json.toString(2), false);
+
     }
+
+    @Test
+    public void testGetAllClients() {
+        List<Client> all = new LinkedList<>();
+        all.add(new Client(1L, "Dark", "Vader", 66, "Darkside@gmail.com", "333111222", 55));
+        all.add(new Client(2L, "John", "Ladder", 66, "test@gmail.com", "123456789", 1));
+
+        when(clientRepository.findAll()).thenReturn(all);
+
+        List<Client> result = clientService.all();
+
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals(result, all);
+
+    }
+
 
 }

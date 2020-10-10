@@ -29,15 +29,13 @@ public class ClientService {
                 .orElseThrow(() -> new ClientNotFoundException(id));
     }
 
-    public List<EntityModel<Client>> all() {
+    public List<Client> all() {
 
-        return repository.findAll().stream() //
-                .map(assembler::toModel) //
-                .collect(Collectors.toList());
+        return repository.findAll();
     }
 
 
-    ResponseEntity<?> newClient(Client newClient) {
+    public ResponseEntity<?> newClient(Client newClient) {
 
         EntityModel<Client> entityModel = assembler.toModel(repository.save(newClient));
 

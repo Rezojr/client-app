@@ -28,10 +28,10 @@ public class ClientController {
     }
 
     @GetMapping("/clients/{id}")
-    public EntityModel<Client> one(@PathVariable Long id) {
+    public Client one(@PathVariable Long id) {
         Client client = service.one(id);
 
-        return assembler.toModel(client);
+        return client;
     }
 
     @GetMapping("/clientsdto/{id}")
@@ -40,11 +40,10 @@ public class ClientController {
     }
 
     @GetMapping("/clients")
-    public CollectionModel<EntityModel<Client>> all() {
+    public List<Client> all() {
 
-        List<EntityModel<Client>> employees = service.all();
-
-        return CollectionModel.of(employees, linkTo(methodOn(ClientController.class).all()).withSelfRel());
+        List<Client> employees = service.all();
+        return employees;
     }
 
     @PostMapping("/clients")
