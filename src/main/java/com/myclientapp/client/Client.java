@@ -1,13 +1,16 @@
 package com.myclientapp.client;
 
+import com.myclientapp.account.Account;
+import com.sun.istack.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -34,4 +37,10 @@ public class Client extends Auditable<String> {
     private String phoneNumber;
     private int accountNumber;
 
+    @OneToMany(
+            mappedBy = "client",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<Account> accounts = new ArrayList<>();
 }
