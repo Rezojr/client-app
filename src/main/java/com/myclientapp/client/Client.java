@@ -1,7 +1,7 @@
 package com.myclientapp.client;
 
-import com.myclientapp.account.Account;
-import com.sun.istack.Nullable;
+import com.myclientapp.common.Auditable;
+import com.myclientapp.common.IdEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -9,18 +9,13 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Client extends Auditable<String> {
-
-    @Id
-    @GeneratedValue
-    private Long id;
+@Table(name = "clients")
+public class Client extends IdEntity<Client> {
 
     @NotNull
     private String firstName;
@@ -37,10 +32,4 @@ public class Client extends Auditable<String> {
     private String phoneNumber;
     private int accountNumber;
 
-    @OneToMany(
-            mappedBy = "client",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
-    private List<Account> accounts = new ArrayList<>();
 }

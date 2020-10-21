@@ -1,6 +1,7 @@
 package com.myclientapp.bank;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.myclientapp.AbstractIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +12,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,51 +23,33 @@ import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
 import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@RunWith(SpringRunner.class)
-@WebMvcTest(controllers = BankController.class)
-public class BankControllerTest {
+public class BankControllerTest extends AbstractIntegrationTest {
 
     @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
     private BankService bankService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    private List<Bank> banks;
-
-    @Before
-    public void setUp() {
-        this.banks = new ArrayList<>();
-        this.banks.add(new Bank(1L, "PKO", 10000));
-        this.banks.add(new Bank(2L, "RBD", 12500));
-        this.banks.add(new Bank(3L, "XXD", 25000));
-        System.out.println(banks);
-    }
-
     @Test
-    public void shouldFetchAllUsers() throws Exception {
-        given(bankService.getAll()).willReturn(banks);
-
-        System.out.println(this.mockMvc.perform(get("/banks")).andReturn().getResponse().getContentAsString());
-
-        this.mockMvc.perform(get("/banks"))
+    public void shouldFetchAllBanks() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders
+                .get("/banks")
+                .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()", is(banks.size())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content").exists())
+                //.andExpect(MockMvcResultMatchers.jsonPath("$.content[*].id").isNotEmpty()) I don't know why content don't have an id
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[*].bankName").isNotEmpty())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[*].bankBalance").isNotEmpty());
     }
 
     @Test
-    public void shouldFetchUserById() throws Exception {
-        final Long bankId = 1L;
-        final Bank bank = new Bank(1L, "PKO", 10000);
+    public void shouldBankUserById() throws Exception {
+        final Bank bank = new Bank("PKO", 100000);
+        Bank bank1 = bankService.createBank(bank);
 
-        given(bankService.findById(bankId)).willReturn(bank);
-
-        this.mockMvc.perform(get("/banks/{id}", bankId))
+        this.mockMvc.perform(get("/banks/{id}", bank1.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.bankName", is(bank.getBankName())))
                 .andExpect(jsonPath("$.bankBalance", is(bank.getBankBalance())));
@@ -72,16 +57,40 @@ public class BankControllerTest {
 
     @Test
     public void shouldCreateNewBank() throws Exception {
-        given(bankService.newBank(any(Bank.class))).willAnswer((invocationOnMock) -> invocationOnMock.getArgument(0));
+        Bank bank = new Bank("PKO", 10000);
+        Bank bank1 = bankService.createBank(bank);
 
-        Bank bank = new Bank(1L, "PKO", 10000);
-
-        this.mockMvc.perform(post("/banks"))
-                //.contentType(MediaType.APPLICATION_JSON)
-                //.content(objectMapper.writeValueAsString(bank))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.bankName", is(bank.getBankName())))
-                .andExpect(jsonPath("$.bankBalance", is(bank.getBankBalance())));
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/banks")
+                .content(toJson(bank1))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.bankName").exists());
     }
 
+    @Test
+    public void shouldDeleteBank() throws Exception {
+        Bank bank = new Bank("PKO", 10000);
+        Bank bank1 = bankService.createBank(bank);
+
+        this.mockMvc.perform(MockMvcRequestBuilders
+                .delete("/banks/{id}", bank1.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void shouldUpdateBank() throws Exception {
+        Bank bank = new Bank("PKO", 100000);
+        Bank bank1 = bankService.createBank(bank);
+        this.mockMvc.perform(MockMvcRequestBuilders
+                .put("/banks/{id}", bank1.getId())
+                .content(toJson(new Bank("SKO", 2000)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.bankName").value("SKO"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.bankBalance").value(2000));
+    }
 }

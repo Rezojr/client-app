@@ -12,7 +12,7 @@ public class AccountNotFoundAdvice {
     @ResponseBody
     @ExceptionHandler(AccountNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    String AccountNotFoundHandler(AccountNotFoundException ex) {
+    String accountNotFoundAdvice(AccountNotFoundException ex) {
         return ex.getMessage();
     }
 

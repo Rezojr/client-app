@@ -1,36 +1,39 @@
+
 package com.myclientapp.bank;
 
+import com.myclientapp.bank.dto.BankDto;
+import com.myclientapp.bank.dto.BankMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
+@RequiredArgsConstructor
 public class BankController {
 
     private final BankService bankService;
-
-    public BankController(BankService bankService) {
-        this.bankService = bankService;
-    }
+    private final BankMapper bankMapper;
 
     @GetMapping("/banks")
-    public List<Bank> getAll() {
-        return bankService.getAll();
+    public Page<BankDto> findAllBanks(@PageableDefault Pageable pageable) {
+        return bankMapper.mapAll(bankService.findAllBanks(pageable));
     }
 
     @GetMapping("/banks/{id}")
-    public Bank getBankById(@PathVariable Long id) {
-        return bankService.findById(id);
+    public BankDto getBankById(@PathVariable Long id) {
+        return bankMapper.toDto(bankService.findBankById(id));
     }
 
     @PostMapping("/banks")
-    public Bank newBank(@RequestBody Bank bank) {
-        return bankService.newBank(bank);
+    public BankDto newBank(@RequestBody Bank bank) {
+        return bankMapper.toDto(bankService.createBank(bank));
     }
 
     @PutMapping("/banks/{id}")
-    public Bank updateBank(@RequestBody Bank bank, @PathVariable Long id) {
-        return bankService.updateBank(bank, id);
+    public BankDto updateBank(@RequestBody Bank bank, @PathVariable Long id) {
+        return bankMapper.toDto(bankService.updateBank(bank, id));
     }
 
     @DeleteMapping("/banks/{id}")

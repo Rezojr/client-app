@@ -1,7 +1,13 @@
 package com.myclientapp.client;
 
+import com.myclientapp.account.Account;
 import com.myclientapp.client.dto.ClientDto;
+import com.myclientapp.client.dto.ClientMapper;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
@@ -13,59 +19,39 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
+@RequiredArgsConstructor
 public class ClientController {
 
-    private final ClientRepository repository;
-    private final ClientModelAssembler assembler;
-    private final ClientService service;
-    private final ModelMapper modelMapper;
+    private final ClientRepository clientRepository;
+    private final ClientService clientService;
+    private final ClientMapper clientMapper;
 
-    public ClientController(ClientRepository repository, ClientModelAssembler assembler, ClientService service, ModelMapper modelMapper) {
-        this.repository = repository;
-        this.assembler = assembler;
-        this.service = service;
-        this.modelMapper = modelMapper;
+    @GetMapping("/clients")
+    public Page<ClientDto> findAllClients(@PageableDefault Pageable pageable) {
+        return clientMapper.mapAll(clientService.findAllClients(pageable));
     }
 
     @GetMapping("/clients/{id}")
-    public Client one(@PathVariable Long id) {
-        Client client = service.one(id);
-
-        return client;
-    }
-
-    @GetMapping("/clientsdto/{id}")
-    public ClientDto oneDto(@PathVariable Long id) {
-        return toDto(service.one(id));
-    }
-
-    @GetMapping("/clients")
-    public List<Client> all() {
-
-        List<Client> employees = service.all();
-        return employees;
+    public ClientDto findClientById(@PathVariable Long id) {
+        return clientMapper.toDto(clientService.findClientById(id));
     }
 
     @PostMapping("/clients")
-    public ResponseEntity<?> newClient(@RequestBody Client newClient) {
-        return service.newClient(newClient);
+    public ClientDto createClient(@RequestBody Client newClient) {
+        return clientMapper.toDto(clientService.createClient(newClient));
     }
 
-    @PutMapping("/clients/{id}")
-    public ResponseEntity<?> replaceClient(@RequestBody Client newClient, @PathVariable Long id) {
 
-        return service.replaceClient(newClient, id);
+    @PutMapping("/clients/{id}")
+    public ClientDto replaceClient(@RequestBody Client newClient, @PathVariable Long id) {
+
+        return clientMapper.toDto(clientService.replaceClient(newClient, id));
     }
 
     @DeleteMapping("/clients/{id}")
-    public ResponseEntity<?> deleteClient(@PathVariable Long id) {
+    public void deleteClient(@PathVariable Long id) {
 
-        return service.deleteClient(id);
-    }
-
-    private ClientDto toDto(Client client) {
-        ClientDto clientDto = modelMapper.map(client, ClientDto.class);
-        return clientDto;
+        clientService.deleteClient(id);
     }
 
 }

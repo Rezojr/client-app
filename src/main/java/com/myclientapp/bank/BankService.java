@@ -1,5 +1,7 @@
 package com.myclientapp.bank;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,16 +15,17 @@ public class BankService {
         this.bankRepository = bankRepository;
     }
 
-    public List<Bank> getAll() {
-        return bankRepository.findAll();
+    public Page<Bank> findAllBanks(Pageable pageable) {
+        return bankRepository.findAll(pageable);
     }
 
-    public Bank findById(Long id) {
+    public Bank findBankById(Long id) {
         return bankRepository.findById(id)
                 .orElseThrow(() -> new BankNotFoundException(id));
     }
 
-    public Bank newBank(Bank bank) {
+    public Bank createBank(Bank bank) {
+        System.out.println(bank.getBankBalance());
         return bankRepository.save(bank);
     }
 

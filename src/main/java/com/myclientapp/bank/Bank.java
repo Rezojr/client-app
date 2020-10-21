@@ -1,6 +1,7 @@
 package com.myclientapp.bank;
 
 import com.myclientapp.client.Client;
+import com.myclientapp.common.IdEntity;
 import com.sun.istack.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,11 +17,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Bank {
-
-    @Id
-    @GeneratedValue
-    private Long id;
+public class Bank extends IdEntity<Bank> {
 
     private String bankName;
     private int bankBalance;

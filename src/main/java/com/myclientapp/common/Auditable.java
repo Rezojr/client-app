@@ -1,4 +1,4 @@
-package com.myclientapp.client;
+package com.myclientapp.common;
 
 import lombok.Data;
 import org.springframework.data.annotation.CreatedBy;

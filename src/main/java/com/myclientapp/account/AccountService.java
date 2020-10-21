@@ -1,37 +1,50 @@
 package com.myclientapp.account;
 
-import com.myclientapp.client.Client;
+import com.myclientapp.account.dto.AccountDto;
 import com.myclientapp.client.ClientNotFoundException;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.IanaLinkRelations;
-import org.springframework.http.ResponseEntity;
+import com.myclientapp.client.ClientRepository;
+import com.myclientapp.client.ClientService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 
-import javax.security.auth.login.AccountNotFoundException;
-import javax.swing.text.html.parser.Entity;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final ClientRepository clientRepository;
+    private final ClientService clientService;
 
-    public AccountService(AccountRepository accountRepository) {
+    public AccountService(AccountRepository accountRepository, ClientRepository clientRepository, ClientService clientService) {
         this.accountRepository = accountRepository;
+        this.clientRepository = clientRepository;
+        this.clientService = clientService;
     }
 
-    public Account getOne(Long id) {
+    public Account findAccountById(Long id) {
         return accountRepository.findById(id)
-                .orElseThrow(() -> new ClientNotFoundException(id));
+                .orElseThrow(() -> new AccountNotFoundException(id));
     }
 
-    public List<Account> getAll() {
-        return accountRepository.findAll();
+    public Page<Account> getAllAccountsByClientId(Long clientId, Pageable pageable) {
+        return accountRepository.findByClientId(clientId, pageable);
     }
 
-    public Account newAccount(Account newAccount) {
-        return accountRepository.save(newAccount);
+    public Page<Account> findAllAccounts(Pageable pageable) {
+        return accountRepository.findAll(pageable);
+    }
+
+    public Account createAccount(Long clientId, Account newAccount) {
+        return clientRepository.findById(clientId).map(
+                client -> {
+                    newAccount.setClient(client);
+                    System.out.println("XD");
+                    return accountRepository.save(newAccount);
+                }).orElseThrow(() -> new AccountNotFoundException(clientId));
     }
 
     public Account replaceAccount(Account newAccount, Long id) {
@@ -49,17 +62,5 @@ public class AccountService {
     void deleteAccount(Long id) {
         accountRepository.deleteById(id);
     }
-
-    Account replaceOwner(Account newAccount, Long id) {
-        return accountRepository.findById(id)
-                .map(account -> {
-                    account.setClient(newAccount.getClient());
-                    return accountRepository.save(account);
-                }).orElseGet(() -> {
-                    newAccount.setId(id);
-                    return accountRepository.save(newAccount);
-                });
-    }
-
 
 }

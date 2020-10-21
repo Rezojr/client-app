@@ -1,6 +1,8 @@
 package com.myclientapp.account;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.myclientapp.client.Client;
+import com.myclientapp.common.IdEntity;
 import com.sun.istack.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,17 +14,18 @@ import javax.persistence.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Account {
-
-    @Id
-    @GeneratedValue
-    private Long id;
-
+@Table(name = "accounts")
+public class Account extends IdEntity<Account> {
     private int accountNumber;
     private double balance;
 
-    @Nullable
-    @ManyToOne
-    @JoinColumn(name = "client_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "client_id",
+    nullable = false,
+    foreignKey = @ForeignKey(
+            name = "fk_accounts_clients_id"
+    ))
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Client client;
+
 }
