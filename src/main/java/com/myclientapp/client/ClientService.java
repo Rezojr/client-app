@@ -1,24 +1,12 @@
 package com.myclientapp.client;
 
-import com.myclientapp.account.Account;
-import com.myclientapp.client.dto.ClientDto;
+import com.myclientapp.account.AccountNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.IanaLinkRelations;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.*;
-
-import javax.security.auth.login.AccountNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +30,7 @@ public class ClientService {
         return clientRepository.save(newClient);
     }
 
-    Client replaceClient(Client newClient, Long id) {
+    Client updateClient(Client newClient, Long id) {
 
         return clientRepository.findById(id) //
                 .map(client -> {
@@ -51,16 +39,11 @@ public class ClientService {
                     client.setAge(newClient.getAge());
                     client.setEmail(newClient.getEmail());
                     client.setPhoneNumber(newClient.getPhoneNumber());
-                    client.setAccountNumber(newClient.getAccountNumber());
                     return clientRepository.save(client);
-                }) //
-                .orElseGet(() -> {
-                    newClient.setId(id);
-                    return clientRepository.save(newClient);
-                });
+                }).orElseThrow(() -> new ClientNotFoundException(id));
     }
 
-    void deleteClient(Long id) {
+    void delete(Long id) {
 
         clientRepository.deleteById(id);
     }

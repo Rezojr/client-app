@@ -1,8 +1,6 @@
 
 package com.myclientapp.bank;
 
-import com.myclientapp.bank.dto.BankDto;
-import com.myclientapp.bank.dto.BankMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,12 +20,12 @@ public class BankController {
     }
 
     @GetMapping("/banks/{id}")
-    public BankDto getBankById(@PathVariable Long id) {
+    public BankDto findBankById(@PathVariable Long id) {
         return bankMapper.toDto(bankService.findBankById(id));
     }
 
     @PostMapping("/banks")
-    public BankDto newBank(@RequestBody Bank bank) {
+    public BankDto createBank(@RequestBody Bank bank) {
         return bankMapper.toDto(bankService.createBank(bank));
     }
 
@@ -37,7 +35,7 @@ public class BankController {
     }
 
     @DeleteMapping("/banks/{id}")
-    public void deleteBank(@PathVariable Long id) {
-        bankService.deleteBank(id);
+    public void delete(@PathVariable Long id) {
+        bankService.delete(id);
     }
 }

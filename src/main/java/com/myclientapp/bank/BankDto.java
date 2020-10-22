@@ -1,4 +1,4 @@
-package com.myclientapp.bank.dto;
+package com.myclientapp.bank;
 
 import com.myclientapp.common.AuditableDto;
 import lombok.*;

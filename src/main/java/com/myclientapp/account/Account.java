@@ -15,7 +15,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "accounts")
-public class Account extends IdEntity<Account> {
+public class Account extends IdEntity {
     private int accountNumber;
     private double balance;
 

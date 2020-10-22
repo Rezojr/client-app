@@ -45,7 +45,7 @@ public class BankServiceTest {
     private BankService bankService;
 
     @Test
-    public void shouldReturnFindAl() {
+    public void shouldReturnFindAll() {
         List<Bank> bankList = new ArrayList();
         bankList.add(new Bank("PKO", 10000));
         bankList.add(new Bank("Test", 20000));
@@ -72,15 +72,17 @@ public class BankServiceTest {
     @Test
     public void shouldBeDeleted() {
         final Long id = 1L;
-        bankService.deleteBank(id);
+        bankService.delete(id);
         verify(bankRepository, atLeastOnce()).deleteById(id);
     }
 
     @Test
     public void updateBank() {
+        final Long id = 1L;
         final Bank bank = new Bank("PKO", 10000);
         given(bankRepository.save(bank)).willReturn(bank);
-        final Bank expected = bankService.updateBank(bank, 1L);
+        given(bankRepository.findById(id)).willReturn(Optional.of(bank));
+        final Bank expected = bankService.updateBank(bank, id);
         assertThat(expected).isNotNull();
         verify(bankRepository).save(any(Bank.class));
     }
@@ -94,7 +96,7 @@ public class BankServiceTest {
     }
 
     @Test
-    public void createBankTest() {
+    public void shouldCreateNewBank() {
         final Bank bank = new Bank("PKO", 10000);
         given(bankRepository.save(bank)).willAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
         Bank savedBank = bankService.createBank(bank);

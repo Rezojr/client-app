@@ -1,12 +1,9 @@
-package com.myclientapp.account.dto;
+package com.myclientapp.account;
 
-import com.myclientapp.client.Client;
 import com.myclientapp.common.AuditableDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import javax.persistence.Entity;
 
 
 @Data

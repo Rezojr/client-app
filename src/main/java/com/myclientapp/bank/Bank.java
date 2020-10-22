@@ -17,7 +17,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Bank extends IdEntity<Bank> {
+public class Bank extends IdEntity {
 
     private String bankName;
     private int bankBalance;

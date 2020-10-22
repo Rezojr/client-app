@@ -1,5 +1,6 @@
 package com.myclientapp.bank;
 
+import com.myclientapp.account.AccountNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -35,13 +36,10 @@ public class BankService {
                     bank.setBankName(newBank.getBankName());
                     bank.setBankBalance(newBank.getBankBalance());
                     return bankRepository.save(bank);
-                }).orElseGet(() -> {
-                    newBank.setId(id);
-                    return bankRepository.save(newBank);
-                });
+                }).orElseThrow(() -> new BankNotFoundException(id));
     }
 
-    public void deleteBank(Long id) {
+    public void delete(Long id) {
         bankRepository.deleteById(id);
     }
 }

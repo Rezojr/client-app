@@ -15,7 +15,7 @@ import javax.validation.constraints.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "clients")
-public class Client extends IdEntity<Client> {
+public class Client extends IdEntity {
 
     @NotNull
     private String firstName;
@@ -30,6 +30,5 @@ public class Client extends IdEntity<Client> {
     @Email
     private String email;
     private String phoneNumber;
-    private int accountNumber;
 
 }

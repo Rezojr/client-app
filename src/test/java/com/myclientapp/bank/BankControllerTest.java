@@ -39,13 +39,12 @@ public class BankControllerTest extends AbstractIntegrationTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content").exists())
-                //.andExpect(MockMvcResultMatchers.jsonPath("$.content[*].id").isNotEmpty()) I don't know why content don't have an id
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[*].bankName").isNotEmpty())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[*].bankBalance").isNotEmpty());
     }
 
     @Test
-    public void shouldBankUserById() throws Exception {
+    public void shouldFetchBankUserById() throws Exception {
         final Bank bank = new Bank("PKO", 100000);
         Bank bank1 = bankService.createBank(bank);
 
@@ -70,11 +69,8 @@ public class BankControllerTest extends AbstractIntegrationTest {
 
     @Test
     public void shouldDeleteBank() throws Exception {
-        Bank bank = new Bank("PKO", 10000);
-        Bank bank1 = bankService.createBank(bank);
-
         this.mockMvc.perform(MockMvcRequestBuilders
-                .delete("/banks/{id}", bank1.getId())
+                .delete("/banks/{id}", 1L)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());

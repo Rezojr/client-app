@@ -1,4 +1,4 @@
-package com.myclientapp.client.dto;
+package com.myclientapp.client;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

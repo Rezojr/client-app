@@ -27,10 +27,6 @@ public class ClientControllerTest extends AbstractIntegrationTest {
 
     @Test
     public void shouldFetchAllClients() throws Exception {
-        final Client client = new Client("Json", "Deep", 20, "test@gmail.com", "123123123", 123);
-        clientService.createClient(client);
-        clientService.createClient(client);
-
         mockMvc.perform(MockMvcRequestBuilders
                 .get("/clients")
                 .accept(MediaType.APPLICATION_JSON))
@@ -45,11 +41,13 @@ public class ClientControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void shouldFindClientById() throws Exception {
-        final Client client = new Client("Json", "Deep", 20, "test@gmail.com", "123123123", 123);
+    public void shouldFetchClientById() throws Exception {
+        final Client client = new Client("Json", "Deep", 20, "test@gmail.com", "123123123");
         Client client1 = clientService.createClient(client);
 
-        this.mockMvc.perform(get("/clients/{id}", client1.getId()))
+        this.mockMvc.perform(get("/clients/{id}", client1.getId())
+                .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstName", is(client.getFirstName())))
                 .andExpect(jsonPath("$.lastName", is(client.getLastName())))
@@ -59,21 +57,23 @@ public class ClientControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    public void shouldCreateNewBank() throws Exception {
-        final Client client = new Client("Json", "Deep", 20, "test@gmail.com", "123123123", 123);
-        Client client1 = clientService.createClient(client);
-
+    public void shouldCreateNewClient() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders
                 .post("/clients")
-                .content(toJson(client1))
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(toJson(new Client("Json", "Deep", 20, "test@gmail.com", "123123123"))))
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.firstName").exists());
+                .andExpect(MockMvcResultMatchers.jsonPath("$.firstName").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.lastName").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.age").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.email").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.phoneNumber").exists());
     }
 
     @Test
     public void shouldDeleteClient() throws Exception {
-        final Client client = new Client("Json", "Deep", 20, "test@gmail.com", "123123123", 123);
+        final Client client = new Client("Json", "Deep", 20, "test@gmail.com", "123123123");
         Client client1 = clientService.createClient(client);
 
         this.mockMvc.perform(MockMvcRequestBuilders
@@ -85,17 +85,20 @@ public class ClientControllerTest extends AbstractIntegrationTest {
 
     @Test
     public void shouldUpdateClient() throws Exception {
-        final Client client = new Client("Json", "Deep", 20, "test@gmail.com", "123123123", 123);
+        final Client client = new Client("Json", "Deep", 20, "test@gmail.com", "123123123");
         Client client1 = clientService.createClient(client);
 
         this.mockMvc.perform(MockMvcRequestBuilders
-                .put("/banks/{id}", client1.getId())
-                .content(toJson(new Bank("SKO", 2000)))
+                .put("/clients/{id}", client1.getId())
+                .content(toJson(new Client("Test", "Deep", 20, "test@gmail.com", "123123123")))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.bankName").value("SKO"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.bankBalance").value(2000));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.firstName").value("Test"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.lastName").value("Deep"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.age").value(20))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.email").value("test@gmail.com"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.phoneNumber").value("123123123"));
     }
 
 }

@@ -1,9 +1,5 @@
 package com.myclientapp.account;
 
-import com.myclientapp.account.dto.AccountDto;
-import com.myclientapp.account.dto.AccountMapper;
-import com.myclientapp.client.Client;
-import com.myclientapp.client.ClientNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,7 +7,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -45,13 +40,13 @@ public class AccountController {
     }
 
     @PutMapping("/accounts/{id}")
-    Account replaceAccount(@RequestBody Account newAccount, @PathVariable Long id) {
-        return accountService.replaceAccount(newAccount, id);
+    AccountDto updateAccount(@RequestBody Account newAccount, @PathVariable Long id) {
+        return accountMapper.toDto(accountService.updateAccount(newAccount, id));
     }
 
 
     @DeleteMapping("/accounts/{id}")
-    void deleteAccount(@PathVariable Long id) {
-        accountService.deleteAccount(id);
+    void delete(@PathVariable Long id) {
+        accountService.delete(id);
     }
 }
