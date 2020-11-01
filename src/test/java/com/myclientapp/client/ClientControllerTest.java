@@ -27,6 +27,9 @@ public class ClientControllerTest extends AbstractIntegrationTest {
 
     @Test
     public void shouldFetchAllClients() throws Exception {
+        final Client client = new Client("Json", "Deep", 20, "test@gmail.com", "123123123");
+        Client client1 = clientService.createClient(client);
+
         mockMvc.perform(MockMvcRequestBuilders
                 .get("/clients")
                 .accept(MediaType.APPLICATION_JSON))
@@ -62,7 +65,7 @@ public class ClientControllerTest extends AbstractIntegrationTest {
                 .post("/clients")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content(toJson(new Client("Json", "Deep", 20, "test@gmail.com", "123123123"))))
+                .content(toJson(new ClientDto("Json", "Deep", 20, "123123123", "test@gmail.com"))))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.firstName").exists())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.lastName").exists())
@@ -90,7 +93,7 @@ public class ClientControllerTest extends AbstractIntegrationTest {
 
         this.mockMvc.perform(MockMvcRequestBuilders
                 .put("/clients/{id}", client1.getId())
-                .content(toJson(new Client("Test", "Deep", 20, "test@gmail.com", "123123123")))
+                .content(toJson(new ClientDto("Test", "Deep", 20, "123123213", "test@gmail.com")))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -98,7 +101,7 @@ public class ClientControllerTest extends AbstractIntegrationTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.lastName").value("Deep"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.age").value(20))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.email").value("test@gmail.com"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.phoneNumber").value("123123123"));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.phoneNumber").value("123123213"));
     }
 
 }

@@ -39,43 +39,60 @@ public class ClientServiceTest {
 
     @Test
     public void shouldReturnFindAllClients() {
+        // Given
         List<Client> clientList = new ArrayList();
         clientList.add(new Client("Json", "Deep", 20, "test@gmail.com", "123123123"));
         clientList.add(new Client("Json", "Deep", 20, "test@gmail.com", "123123123"));
         Page<Client> clientListPage = new PageImpl<>(clientList);
-
         Pageable pageable = PageRequest.of(0, 2);
-
         when(clientRepository.findAll(pageable)).thenReturn(clientListPage);
+
+        // When
         Page<Client> expected = clientService.findAllClients(pageable);
 
+        // Then
         assertEquals(expected.getTotalElements(), clientListPage.getTotalElements());
     }
 
     @Test
     public void shouldReturnFindClientById() {
+        // Given
         final Long id = 1L;
         final Client client = new Client("Json", "Deep", 20, "test@gmail.com", "123123123");
         given(clientRepository.findById(id)).willReturn(Optional.of(client));
+
+        // When
         final Client expected = clientService.findClientById(id);
+
+        // Then
         assertThat(expected).isNotNull();
         assertEquals(expected, client);
     }
 
     @Test
     public void shouldBeDeleted() {
+        // Given
         final Long id = 1L;
+
+        // When
         clientService.delete(id);
+
+        // Then
         verify(clientRepository, atLeastOnce()).deleteById(id);
     }
 
     @Test
     public void shouldUpdateClient() {
+        // Given
         final Long id = 1L;
         final Client client = new Client("Json", "Deep", 20, "test@gmail.com", "123123123");
         given(clientRepository.save(client)).willReturn(client);
         given(clientRepository.findById(id)).willReturn(Optional.of(client));
+
+        // When
         final Client expected = clientService.updateClient(client, 1L);
+
+        // Then
         assertThat(expected).isNotNull();
         verify(clientRepository).save(any(Client.class));
     }
@@ -83,19 +100,21 @@ public class ClientServiceTest {
     @Test(expected = ClientNotFoundException.class)
     public void shouldThrowExceptionIfClientNotFound() {
         Mockito.when(clientRepository.findById(anyLong())).thenThrow(new ClientNotFoundException(1L));
-
         clientService.updateClient(new Client(), 1L);
-
     }
 
     @Test
     public void shouldCreateNewClient() {
+        // Given
         final Client client = new Client("Json", "Deep", 20, "test@gmail.com", "123123123");
         given(clientRepository.save(client)).willAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+        // When
         Client savedClient = clientService.createClient(client);
+
+        // Then
         assertThat(savedClient).isNotNull();
         verify(clientRepository).save(any(Client.class));
     }
-
 
 }

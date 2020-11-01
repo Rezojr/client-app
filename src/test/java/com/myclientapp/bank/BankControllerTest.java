@@ -18,8 +18,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -31,8 +30,14 @@ public class BankControllerTest extends AbstractIntegrationTest {
     @Autowired
     private BankService bankService;
 
+    @Autowired
+    private BankMapper bankMapper;
+
     @Test
     public void shouldFetchAllBanks() throws Exception {
+        final Bank bank = new Bank("PKO", 100000);
+        Bank bank1 = bankService.createBank(bank);
+
         mockMvc.perform(MockMvcRequestBuilders
                 .get("/banks")
                 .accept(MediaType.APPLICATION_JSON))
@@ -61,7 +66,7 @@ public class BankControllerTest extends AbstractIntegrationTest {
 
         mockMvc.perform(MockMvcRequestBuilders
                 .post("/banks")
-                .content(toJson(bank1))
+                .content(toJson(bankMapper.toDto(bank1)))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.bankName").exists());
@@ -69,8 +74,11 @@ public class BankControllerTest extends AbstractIntegrationTest {
 
     @Test
     public void shouldDeleteBank() throws Exception {
+        Bank bank = new Bank("PKO", 100000);
+        Bank bank1 = bankService.createBank(bank);
+
         this.mockMvc.perform(MockMvcRequestBuilders
-                .delete("/banks/{id}", 1L)
+                .delete("/banks/{id}", bank1.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -80,13 +88,13 @@ public class BankControllerTest extends AbstractIntegrationTest {
     public void shouldUpdateBank() throws Exception {
         Bank bank = new Bank("PKO", 100000);
         Bank bank1 = bankService.createBank(bank);
+
         this.mockMvc.perform(MockMvcRequestBuilders
                 .put("/banks/{id}", bank1.getId())
-                .content(toJson(new Bank("SKO", 2000)))
+                .content(toJson(new BankDto("SKO", 2000)))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.bankName").value("SKO"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.bankBalance").value(2000));
     }
 }

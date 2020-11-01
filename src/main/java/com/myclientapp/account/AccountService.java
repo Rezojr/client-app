@@ -44,7 +44,7 @@ public class AccountService {
                 }).orElseThrow(() -> new AccountNotFoundException(id));
     }
 
-    void delete(Long id) {
+    public void delete(Long id) {
         accountRepository.deleteById(id);
     }
 

@@ -22,7 +22,4 @@ public class Bank extends IdEntity {
     private String bankName;
     private int bankBalance;
 
-    //@Nullable
-    //private List<Client> clients;
-
 }

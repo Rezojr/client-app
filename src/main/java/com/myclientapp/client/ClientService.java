@@ -14,7 +14,6 @@ public class ClientService {
 
     private final ClientRepository clientRepository;
 
-
     public Page<Client> findAllClients(Pageable pageable) {
         return clientRepository.findAll(pageable);
     }
@@ -24,13 +23,12 @@ public class ClientService {
                 .orElseThrow(() -> new ClientNotFoundException(id));
     }
 
-
     public Client createClient(Client newClient) {
 
         return clientRepository.save(newClient);
     }
 
-    Client updateClient(Client newClient, Long id) {
+    public Client updateClient(Client newClient, Long id) {
 
         return clientRepository.findById(id) //
                 .map(client -> {
@@ -43,7 +41,7 @@ public class ClientService {
                 }).orElseThrow(() -> new ClientNotFoundException(id));
     }
 
-    void delete(Long id) {
+    public void delete(Long id) {
 
         clientRepository.deleteById(id);
     }

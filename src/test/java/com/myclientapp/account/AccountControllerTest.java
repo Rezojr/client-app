@@ -30,21 +30,27 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class AccountControllerTest extends AbstractIntegrationTest {
 
     @Autowired
-    AccountService accountService;
+    private AccountService accountService;
 
     @Autowired
-    ClientService clientService;
+    private  ClientService clientService;
 
+    @Autowired
+    private AccountMapper accountMapper;
 
     @Test
     public void shouldFetchAllAccounts() throws Exception {
+        final Client client = new Client("Json", "Deep", 20, "test@gmail.com", "123123123");
+        Client client1 = clientService.createClient(client);
+        final Account account = new Account(123, 2500.25, client);
+        Account account1 = accountService.createAccount(client1.getId(), account);
+
         mockMvc.perform(MockMvcRequestBuilders
                 .get("/accounts")
                 .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content").exists())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.content[*].accountNumber").isNotEmpty())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[*].balance").isNotEmpty());
     }
 
@@ -52,7 +58,6 @@ public class AccountControllerTest extends AbstractIntegrationTest {
     public void shouldFetchAllAccountsByClientId() throws Exception {
         final Client client = new Client("Json", "Deep", 20, "test@gmail.com", "123123123");
         Client client1 = clientService.createClient(client);
-
 
         mockMvc.perform(MockMvcRequestBuilders
                 .get("/clients/{clientId}/accounts", client1.getId())
@@ -68,7 +73,8 @@ public class AccountControllerTest extends AbstractIntegrationTest {
         final Account account = new Account(123, 2500.25, client);
         Account account1 = accountService.createAccount(client1.getId(), account);
 
-        this.mockMvc.perform(get("/accounts/{id}", account1.getId()))
+        this.mockMvc.perform(MockMvcRequestBuilders
+                .get("/accounts/{id}", account1.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accountNumber", is(account.getAccountNumber())))
                 .andExpect(jsonPath("$.balance", is(account.getBalance())));
@@ -83,7 +89,7 @@ public class AccountControllerTest extends AbstractIntegrationTest {
 
         mockMvc.perform(MockMvcRequestBuilders
                 .post("/clients/{clientId}/accounts", client1.getId())
-                .content(toJson(account1))
+                .content(toJson(accountMapper.toDto(account1)))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.accountNumber").exists());
@@ -112,7 +118,7 @@ public class AccountControllerTest extends AbstractIntegrationTest {
 
         this.mockMvc.perform(MockMvcRequestBuilders
                 .put("/accounts/{id}", account1.getId())
-                .content(toJson(new Account(123, 2500.25, client)))
+                .content(toJson(new AccountDto(123, 2500.25)))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

@@ -33,13 +33,11 @@ public class ClientController {
 
     @PutMapping("/clients/{id}")
     public ClientDto updateClient(@RequestBody Client newClient, @PathVariable Long id) {
-
         return clientMapper.toDto(clientService.updateClient(newClient, id));
     }
 
     @DeleteMapping("/clients/{id}")
     public void delete(@PathVariable Long id) {
-
         clientService.delete(id);
     }
 

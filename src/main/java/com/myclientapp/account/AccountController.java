@@ -21,9 +21,9 @@ public class AccountController {
     }
 
     @GetMapping("/clients/{id}/accounts")
-    public Page<Account> findAllAccountsByClientId(@PathVariable Long id,
+    public Page<AccountDto> findAllAccountsByClientId(@PathVariable Long id,
                                                    @PageableDefault Pageable pageable) {
-        return accountService.getAllAccountsByClientId(id, pageable);
+        return accountMapper.mapAll(accountService.getAllAccountsByClientId(id, pageable));
     }
 
     @GetMapping("/accounts/{id}")
@@ -32,21 +32,18 @@ public class AccountController {
     }
 
     @PostMapping("/clients/{clientId}/accounts")
-    AccountDto createAccount(@PathVariable Long clientId,
+    public AccountDto createAccount(@PathVariable Long clientId,
                           @Valid @RequestBody Account newAccount) {
-
-
         return accountMapper.toDto(accountService.createAccount(clientId, newAccount));
     }
 
     @PutMapping("/accounts/{id}")
-    AccountDto updateAccount(@RequestBody Account newAccount, @PathVariable Long id) {
+    public AccountDto updateAccount(@RequestBody Account newAccount, @PathVariable Long id) {
         return accountMapper.toDto(accountService.updateAccount(newAccount, id));
     }
 
-
     @DeleteMapping("/accounts/{id}")
-    void delete(@PathVariable Long id) {
+    public void delete(@PathVariable Long id) {
         accountService.delete(id);
     }
 }
